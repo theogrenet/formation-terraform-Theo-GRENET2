@@ -1,0 +1,19 @@
+#!/bin/bash
+# templates/nginx.sh.tftpl
+# Exécuté au 1er boot de l'EC2 en root via cloud-init.
+# ${az} = variable Terraform remplacée par templatefile() avant envoi à AWS.
+
+set -euxo pipefail
+# -e stoppe si erreur / -u erreur si var non définie / -x affiche les commandes / -o pipefail
+
+# AL2023 utilise dnf (pas yum)
+dnf update -y
+dnf install -y nginx
+
+# Page nginx qui identifie l'AZ -> me permet de vérifier quelle instance répond
+cat > /usr/share/nginx/html/index.html <<HTML
+Hello from AZ ${az}
+HTML
+
+# Démarre nginx maintenant + active au boot
+systemctl enable --now nginx
